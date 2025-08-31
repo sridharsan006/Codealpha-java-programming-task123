@@ -1,0 +1,129 @@
+import java.io.*;
+import java.util.*;
+
+class Room {
+    int no;
+    String type;
+    boolean booked;
+
+    Room(int no, String type) {
+        this.no = no;
+        this.type = type;
+        this.booked = false;
+    }
+}
+
+class Booking {
+    String name;
+    int roomNo;
+    String type;
+
+    Booking(String name, int roomNo, String type) {
+        this.name = name;
+        this.roomNo = roomNo;
+        this.type = type;
+    }
+
+    public String toString() {
+        return name + " -> Room " + roomNo + " (" + type + ")";
+    }
+}
+
+public class HotelReservation {
+    static ArrayList<Room> rooms = new ArrayList<>();
+    static ArrayList<Booking> bookings = new ArrayList<>();
+    static String file = "bookings.txt";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // create sample rooms
+        for (int i = 1; i <= 5; i++) rooms.add(new Room(i, "Standard"));
+        for (int i = 6; i <= 8; i++) rooms.add(new Room(i, "Deluxe"));
+        for (int i = 9; i <= 10; i++) rooms.add(new Room(i, "Suite"));
+
+        load();
+
+        while (true) {
+            System.out.println("\n1. Show Rooms\n2. Book\n3. Cancel\n4. Bookings\n5. Exit");
+            System.out.print("Choice: ");
+            int ch = sc.nextInt(); sc.nextLine();
+
+            if (ch == 1) showRooms();
+            else if (ch == 2) {
+                System.out.print("Name: ");
+                String n = sc.nextLine();
+                System.out.print("Room no: ");
+                int r = sc.nextInt(); sc.nextLine();
+                book(n, r);
+            }
+            else if (ch == 3) {
+                System.out.print("Name: ");
+                String n = sc.nextLine();
+                cancel(n);
+            }
+            else if (ch == 4) showBookings();
+            else if (ch == 5) { save(); break; }
+            else System.out.println("Invalid");
+        }
+        sc.close();
+    }
+
+    static void showRooms() {
+        for (Room r : rooms) {
+            if (!r.booked) System.out.println("Room " + r.no + " - " + r.type);
+        }
+    }
+
+    static void book(String name, int no) {
+        for (Room r : rooms) {
+            if (r.no == no && !r.booked) {
+                r.booked = true;
+                Booking b = new Booking(name, no, r.type);
+                bookings.add(b);
+                System.out.println("Booked! " + b);
+                return;
+            }
+        }
+        System.out.println("Not available.");
+    }
+
+    static void cancel(String name) {
+        Booking rem = null;
+        for (Booking b : bookings) {
+            if (b.name.equalsIgnoreCase(name)) { rem = b; break; }
+        }
+        if (rem != null) {
+            bookings.remove(rem);
+            for (Room r : rooms) if (r.no == rem.roomNo) r.booked = false;
+            System.out.println("Cancelled " + name);
+        } else {
+            System.out.println("No booking found.");
+        }
+    }
+
+    static void showBookings() {
+        if (bookings.isEmpty()) System.out.println("No bookings.");
+        else for (Booking b : bookings) System.out.println(b);
+    }
+
+    static void save() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+            for (Booking b : bookings)
+                pw.println(b.name + "," + b.roomNo + "," + b.type);
+        } catch (Exception e) {}
+    }
+
+    static void load() {
+        File f = new File(file);
+        if (!f.exists()) return;
+        try (Scanner sc = new Scanner(f)) {
+            while (sc.hasNextLine()) {
+                String[] d = sc.nextLine().split(",");
+                Booking b = new Booking(d[0], Integer.parseInt(d[1]), d[2]);
+                bookings.add(b);
+                for (Room r : rooms) if (r.no == b.roomNo) r.booked = true;
+            }
+        } catch (Exception e) {}
+    }
+}
