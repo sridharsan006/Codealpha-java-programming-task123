@@ -1,0 +1,69 @@
+import java.util.*;
+
+class Student {
+    String name;
+    ArrayList<Integer> marks = new ArrayList<>();
+
+    Student(String name) {
+        this.name = name;
+    }
+
+    void addMark(int mark) {
+        marks.add(mark);
+    }
+
+    double average() {
+        int sum = 0;
+        for (int m : marks) sum += m;
+        return (double) sum / marks.size();
+    }
+
+    int highest() {
+        int max = marks.get(0);
+        for (int m : marks) if (m > max) max = m;
+        return max;
+    }
+
+    int lowest() {
+        int min = marks.get(0);
+        for (int m : marks) if (m < min) min = m;
+        return min;
+    }
+
+    void show() {
+        System.out.println("\nName: " + name);
+        System.out.println("Marks: " + marks);
+        System.out.println("Avg: " + String.format("%.2f", average()));
+        System.out.println("High: " + highest());
+        System.out.println("Low: " + lowest());
+    }
+}
+
+public class StudentGradeTracker {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of students: ");
+        int n = sc.nextInt();
+        sc.nextLine();
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("\nEnter name: ");
+            String name = sc.nextLine();
+            Student s = new Student(name);
+
+            System.out.print("Enter number of marks: ");
+            int m = sc.nextInt();
+
+            for (int j = 0; j < m; j++) {
+                System.out.print("Mark " + (j+1) + ": ");
+                s.addMark(sc.nextInt());
+            }
+            sc.nextLine();
+
+            s.show(); // show report immediately after input
+        }
+
+        sc.close();
+    }
+}
